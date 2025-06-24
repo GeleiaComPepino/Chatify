@@ -26,8 +26,8 @@ public class SimpleChatApp extends Application {
     public void start(Stage stage) {
         this.primaryStage = stage;
         createChatScene();
-
-        primaryStage.setTitle("Chattify");
+        primaryStage.getIcons().add(new Image("https://cdn-icons-png.flaticon.com/512/5962/5962463.png"));
+        primaryStage.setTitle("Chatify");
         primaryStage.setScene(chatScene);
         primaryStage.show();
     }
@@ -50,47 +50,80 @@ public class SimpleChatApp extends Application {
         sidebarBox.setPrefWidth(250);
         sidebarBox.setStyle("-fx-background-color: #f9f9fb;");
 
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        ImageView icon = new ImageView(new Image("https://cdn-icons-png.flaticon.com/512/5962/5962463.png"));
+        icon.setFitWidth(20);
+        icon.setFitHeight(20);
+
         Label mensagensLabel = new Label("Mensagens");
         mensagensLabel.setFont(new Font(16));
+
+        Button addButton = new Button("Adicionar");
+        addButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;");
+        addButton.setOnAction(e -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Adicionar Usuário");
+            dialog.setHeaderText(null);
+            dialog.setContentText("Digite o email do usuário:");
+            dialog.showAndWait().ifPresent(email -> {
+                if (!userMessagesMap.containsKey(email)) {
+                    addUserToSidebar(email);
+                }
+            });
+        });
+
+        header.getChildren().addAll(icon, mensagensLabel, new Region(), addButton);
+        HBox.setHgrow(header.getChildren().get(2), Priority.ALWAYS);
 
         TextField searchField = new TextField();
         searchField.setPromptText("Pesquisar chat");
 
         VBox chatList = new VBox(5);
         for (String user : Lista) {
-            HBox chatItem = new HBox(10);
-            chatItem.setPadding(new Insets(5));
-            chatItem.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; cursor: hand;");
-            String imageUrl = "https://api.dicebear.com/9.x/fun-emoji/png?seed=" + user;
-            ImageView profile = new ImageView(new Image(imageUrl));
-            profile.setFitWidth(40);
-            profile.setFitHeight(40);
-            VBox chatInfo = new VBox(2);
-            chatInfo.getChildren().addAll(new Label(user), new Label("Clique para abrir"));
-            Label time = new Label("00:00:00");
-            chatItem.getChildren().addAll(profile, chatInfo, new Region(), time);
-            HBox.setHgrow(chatItem.getChildren().get(2), Priority.ALWAYS);
-            chatItem.setOnMouseClicked(e -> openChat(user, imageUrl));
-
-            chatList.getChildren().add(chatItem);
-
-            VBox messageContainer = new VBox(10);
-            messageContainer.setPadding(new Insets(10));
-            messageContainer.setStyle("-fx-background-color: #f4f6fc; -fx-background-radius: 10;");
-            messageContainer.setPrefHeight(400);
-            Label welcome = new Label("Inicie uma conversa com " + user + ".");
-            welcome.setPadding(new Insets(10));
-            welcome.setStyle("-fx-background-color: #ddd; -fx-background-radius: 10;");
-            HBox welcomeBox = new HBox(welcome);
-            welcomeBox.setAlignment(Pos.CENTER);
-            messageContainer.getChildren().add(welcomeBox);
-
-            userMessagesMap.put(user, messageContainer);
-            userWelcomeBoxMap.put(user, welcomeBox);
+            addUserToChatList(chatList, user);
         }
 
-        sidebarBox.getChildren().addAll(mensagensLabel, searchField, chatList);
+        sidebarBox.getChildren().addAll(header, searchField, chatList);
         return sidebarBox;
+    }
+
+    private void addUserToSidebar(String email) {
+        VBox chatList = (VBox) sidebar.getChildren().get(2);
+        addUserToChatList(chatList, email);
+    }
+
+    private void addUserToChatList(VBox chatList, String user) {
+        HBox chatItem = new HBox(10);
+        chatItem.setPadding(new Insets(5));
+        chatItem.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; cursor: hand;");
+        String imageUrl = "https://api.dicebear.com/9.x/fun-emoji/png?seed=" + user + "&radius=50";
+        ImageView profile = new ImageView(new Image(imageUrl));
+        profile.setFitWidth(40);
+        profile.setFitHeight(40);
+        VBox chatInfo = new VBox(2);
+        chatInfo.getChildren().addAll(new Label(user), new Label("Clique para abrir"));
+        Label time = new Label("00:00:00");
+        chatItem.getChildren().addAll(profile, chatInfo, new Region(), time);
+        HBox.setHgrow(chatItem.getChildren().get(2), Priority.ALWAYS);
+        chatItem.setOnMouseClicked(e -> openChat(user, imageUrl));
+
+        chatList.getChildren().add(chatItem);
+
+        VBox messageContainer = new VBox(10);
+        messageContainer.setPadding(new Insets(10));
+        messageContainer.setStyle("-fx-background-color: #f4f6fc; -fx-background-radius: 10;");
+        messageContainer.setPrefHeight(400);
+        Label welcome = new Label("Inicie uma conversa com " + user + ".");
+        welcome.setPadding(new Insets(10));
+        welcome.setStyle("-fx-background-color: #ddd; -fx-background-radius: 10;");
+        HBox welcomeBox = new HBox(welcome);
+        welcomeBox.setAlignment(Pos.CENTER);
+        messageContainer.getChildren().add(welcomeBox);
+
+        userMessagesMap.put(user, messageContainer);
+        userWelcomeBoxMap.put(user, welcomeBox);
     }
 
     private VBox buildInitialPanel() {
