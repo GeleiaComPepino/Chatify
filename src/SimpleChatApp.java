@@ -9,8 +9,10 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SimpleChatApp extends Application {
 
@@ -18,9 +20,12 @@ public class SimpleChatApp extends Application {
     private Scene chatScene;
     private Stage primaryStage;
     private VBox sidebar;
-    private final String[] Lista = {"Gustavo", "Davi", "Daniel", "Rafael", "Luiz", "Lucas"};
     private final Map<String, VBox> userMessagesMap = new HashMap<>();
     private final Map<String, HBox> userWelcomeBoxMap = new HashMap<>();
+
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/chatify?useSSL=false&serverTimezone=UTC";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "";
 
     @Override
     public void start(Stage stage) {
@@ -69,6 +74,7 @@ public class SimpleChatApp extends Application {
             dialog.setContentText("Digite o email do usuário:");
             dialog.showAndWait().ifPresent(email -> {
                 if (!userMessagesMap.containsKey(email)) {
+                    addUserToDatabase(email);
                     addUserToSidebar(email);
                 }
             });
@@ -81,9 +87,7 @@ public class SimpleChatApp extends Application {
         searchField.setPromptText("Pesquisar chat");
 
         VBox chatList = new VBox(5);
-        for (String user : Lista) {
-            addUserToChatList(chatList, user);
-        }
+        loadUsersFromDatabase(chatList);
 
         sidebarBox.getChildren().addAll(header, searchField, chatList);
         return sidebarBox;
@@ -98,7 +102,7 @@ public class SimpleChatApp extends Application {
         HBox chatItem = new HBox(10);
         chatItem.setPadding(new Insets(5));
         chatItem.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; cursor: hand;");
-        String imageUrl = "https://api.dicebear.com/9.x/fun-emoji/png?seed=" + user + "&radius=50";
+        String imageUrl = "https://api.dicebear.com/9.x/fun-emoji/png?seed=" + user.replaceAll(" ", "") + "&radius=50";
         ImageView profile = new ImageView(new Image(imageUrl));
         profile.setFitWidth(40);
         profile.setFitHeight(40);
@@ -188,6 +192,9 @@ public class SimpleChatApp extends Application {
                 HBox message = new HBox(msg);
                 message.setAlignment(Pos.CENTER_RIGHT);
                 messages.getChildren().add(message);
+
+                saveMessageToDatabase("Me", name, text);
+
                 messageField.clear();
             }
         });
@@ -206,8 +213,109 @@ public class SimpleChatApp extends Application {
     private void openChat(String name, String imageUrl) {
         VBox userMessages = userMessagesMap.get(name);
         if (userMessages != null) {
+            userMessages.getChildren().clear();
+
+            HBox welcomeBox = userWelcomeBoxMap.get(name);
+            userMessages.getChildren().add(welcomeBox);
+
+            loadMessagesFromDatabase("Me", name, userMessages, welcomeBox);
+
             VBox chatPanel = buildChatPanel(userMessages, name, imageUrl);
             mainLayout.setCenter(chatPanel);
+        }
+    }
+
+    private void addUserToDatabase(String email) {
+        String sql = "INSERT INTO chatifyusuarios (id, name, email) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String id = UUID.randomUUID().toString().substring(0, 7);
+            stmt.setString(1, id);
+            stmt.setString(2, email);  // Using email as name here, adjust as needed
+            stmt.setString(3, email);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadUsersFromDatabase(VBox chatList) {
+        String sql = "SELECT name, email FROM chatifyusuarios";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                if (email != null && !email.trim().isEmpty()) {
+                    addUserToChatList(chatList, name);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveMessageToDatabase(String sender, String receiver, String message) {
+        String sql = "INSERT INTO chatifymessages (sender_name, receiver_name, message) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, sender);
+            stmt.setString(2, receiver);
+            stmt.setString(3, message);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadMessagesFromDatabase(String sender, String receiver, VBox messageBox, HBox welcomeBox) {
+        String sql = "SELECT sender_name, message FROM chatifymessages " +
+                "WHERE (sender_name = ? AND receiver_name = ?) " +
+                "OR (sender_name = ? AND receiver_name = ?) " +
+                "ORDER BY id ASC";  // assuming messages increment by id
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, sender);
+            stmt.setString(2, receiver);
+            stmt.setString(3, receiver);
+            stmt.setString(4, sender);
+
+            ResultSet rs = stmt.executeQuery();
+            boolean hasMessages = false;
+
+            while (rs.next()) {
+                hasMessages = true;
+                String from = rs.getString("sender_name");
+                String msgText = rs.getString("message");
+
+                Label msg = new Label(msgText);
+                msg.setWrapText(true);
+                msg.setPadding(new Insets(10));
+                msg.setStyle("-fx-background-radius: 10;");
+                HBox msgBox = new HBox(msg);
+
+                if (from.equals(sender)) {
+                    msg.setStyle("-fx-background-color: #e3e3ff; -fx-background-radius: 10;");
+                    msgBox.setAlignment(Pos.CENTER_RIGHT);
+                } else {
+                    msg.setStyle("-fx-background-color: #d9ffd9; -fx-background-radius: 10;");
+                    msgBox.setAlignment(Pos.CENTER_LEFT);
+                }
+
+                messageBox.getChildren().add(msgBox);
+            }
+
+            if (hasMessages) {
+                messageBox.getChildren().remove(welcomeBox);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
