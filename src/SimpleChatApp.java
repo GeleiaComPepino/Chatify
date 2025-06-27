@@ -7,7 +7,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.sql.*;
@@ -29,7 +28,7 @@ public class SimpleChatApp extends Application {
     private final Map<String, VBox> userMessagesMap = new HashMap<>();
     private final Map<String, HBox> userWelcomeBoxMap = new HashMap<>();
     private String currentUserEmail;
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/chatify?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String DB_URL = "jdbc:mysql://0.tcp.sa.ngrok.io:17433/chatify?useSSL=false&serverTimezone=UTC";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "";
     private String currentUserId;
@@ -70,13 +69,7 @@ public class SimpleChatApp extends Application {
         passwordField.setPromptText("Senha");
 
         Button loginButton = new Button("Entrar");
-        loginButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;");
-        loginButton.setOnMouseEntered(e -> loginButton.setStyle("-fx-background-color: #1976D2; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;"));
-        loginButton.setOnMouseExited(e -> loginButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;"));
         Button registerButton = new Button("Criar Conta");
-        registerButton.setStyle("-fx-background-color: #43A047; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;");
-        registerButton.setOnMouseEntered(e -> registerButton.setStyle("-fx-background-color: #2E7D32; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;"));
-        registerButton.setOnMouseExited(e -> registerButton.setStyle("-fx-background-color: #43A047; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;"));
 
         Label statusLabel = new Label();
 
@@ -321,26 +314,6 @@ public class SimpleChatApp extends Application {
 
         userMessagesMap.put(user, messageContainer);
         userWelcomeBoxMap.put(user, welcomeBox);
-
-        // Enable Ctrl+Scroll zoom on chat messages
-        messageContainer.addEventFilter(javafx.scene.input.ScrollEvent.SCROLL, event -> {
-            if (event.isControlDown()) {
-                double delta = event.getDeltaY() > 0 ? 2 : -2;
-                for (javafx.scene.Node node : messageContainer.getChildren()) {
-                    if (node instanceof HBox) {
-                        for (javafx.scene.Node child : ((HBox) node).getChildren()) {
-                            if (child instanceof Label) {
-                                Label label = (Label) child;
-                                double currentSize = label.getFont().getSize();
-                                double newSize = Math.max(10, Math.min(40, currentSize + delta));
-                                label.setFont(new javafx.scene.text.Font(label.getFont().getFamily(), newSize));
-                            }
-                        }
-                    }
-                }
-                event.consume();
-            }
-        });
     }
 
     private VBox buildInitialPanel() {
@@ -387,74 +360,7 @@ public class SimpleChatApp extends Application {
         messageInput.setAlignment(Pos.CENTER);
         TextField messageField = new TextField();
         messageField.setPromptText("Digite a mensagem");
-        
-        // Emoji Button
-        Button emojiButton = new Button("\uD83D\uDE00"); // 😀
-        emojiButton.setStyle("-fx-background-color: #fff; -fx-border-color: #e0e0e0; -fx-background-radius: 30; -fx-border-radius: 30; -fx-font-size: 18px; -fx-cursor: hand; -fx-padding: 5 12 5 12;");
-        emojiButton.setOnMouseEntered(e -> emojiButton.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #bdbdbd; -fx-background-radius: 30; -fx-border-radius: 30; -fx-font-size: 18px; -fx-cursor: hand; -fx-padding: 5 12 5 12;"));
-        emojiButton.setOnMouseExited(e -> emojiButton.setStyle("-fx-background-color: #fff; -fx-border-color: #e0e0e0; -fx-background-radius: 30; -fx-border-radius: 30; -fx-font-size: 18px; -fx-cursor: hand; -fx-padding: 5 12 5 12;"));
-        
-        // Modern Emoji Picker Popup
-        emojiButton.setOnAction(e -> {
-            Popup emojiPopup = new Popup();
-            emojiPopup.setAutoHide(true);
-            
-            TabPane tabPane = new TabPane();
-            tabPane.setStyle("-fx-background-radius: 16; -fx-border-radius: 16; -fx-background-color: #fff; -fx-border-color: #e0e0e0;");
-            tabPane.setTabMinWidth(60);
-            tabPane.setTabMaxWidth(120);
-            tabPane.setTabMinHeight(30);
-            tabPane.setTabMaxHeight(30);
-            
-            // Emoji categories (sample, can be expanded)
-            String[][] emojiCategories = {
-                {"Smileys", "\uD83D\uDE00", "\uD83D\uDE02", "\uD83D\uDE09", "\uD83D\uDE0D", "\uD83D\uDE18", "\uD83D\uDE1C", "\uD83D\uDE22", "\uD83D\uDE2D", "\uD83D\uDE31", "\uD83D\uDE0E", "\uD83D\uDE12", "\uD83D\uDE44"},
-                {"Hands", "\uD83D\uDC4D", "\uD83D\uDC4E", "\uD83D\uDC4C", "\uD83D\uDC4F", "\uD83D\uDC4B", "\uD83D\uDC50", "\uD83D\uDC46", "\uD83D\uDC47", "\uD83D\uDC48", "\uD83D\uDC49"},
-                {"Animals", "\uD83D\uDC36", "\uD83D\uDC31", "\uD83D\uDC2D", "\uD83D\uDC39", "\uD83D\uDC30", "\uD83D\uDC3B", "\uD83D\uDC3C", "\uD83D\uDC28", "\uD83D\uDC2F", "\uD83D\uDC35"},
-                {"Food", "\uD83C\uDF4E", "\uD83C\uDF53", "\uD83C\uDF49", "\uD83C\uDF4A", "\uD83C\uDF4D", "\uD83C\uDF52", "\uD83C\uDF50", "\uD83C\uDF47", "\uD83C\uDF48", "\uD83C\uDF4C"},
-                {"Hearts", "\u2764\uFE0F", "\uD83D\uDC9B", "\uD83D\uDC99", "\uD83D\uDC9A", "\uD83D\uDC9C", "\uD83D\uDC94", "\uD83D\uDC97", "\uD83D\uDC98", "\uD83D\uDC93", "\uD83D\uDC95"}
-            };
-            String[] colors = {"#FFEB3B", "#FFCDD2", "#B2DFDB", "#BBDEFB", "#FFE0B2", "#E1BEE7", "#C8E6C9", "#F8BBD0", "#D1C4E9", "#FFF9C4"};
-            int colorIdx = 0;
-            for (String[] category : emojiCategories) {
-                String tabName = category[0];
-                GridPane grid = new GridPane();
-                grid.setHgap(10);
-                grid.setVgap(10);
-                grid.setPadding(new Insets(14));
-                int col = 0, row = 0;
-                for (int i = 1; i < category.length; i++) {
-                    Button emBtn = new Button(category[i]);
-                    String bgColor = colors[(colorIdx + i) % colors.length];
-                    emBtn.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 16; -fx-border-radius: 16; -fx-border-color: #e0e0e0; -fx-font-size: 28px; -fx-cursor: hand; -fx-padding: 10 16 10 16; -fx-effect: dropshadow(gaussian, #bbb, 4, 0.2, 0, 2);");
-                    emBtn.setOnMouseEntered(ev -> emBtn.setStyle("-fx-background-color: #fff176; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #2196F3; -fx-font-size: 32px; -fx-cursor: hand; -fx-padding: 10 16 10 16; -fx-effect: dropshadow(gaussian, #90caf9, 8, 0.3, 0, 4); -fx-scale-x: 1.12; -fx-scale-y: 1.12;"));
-                    emBtn.setOnMouseExited(ev -> emBtn.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 16; -fx-border-radius: 16; -fx-border-color: #e0e0e0; -fx-font-size: 28px; -fx-cursor: hand; -fx-padding: 10 16 10 16; -fx-effect: dropshadow(gaussian, #bbb, 4, 0.2, 0, 2);"));
-                    emBtn.setOnAction(ev -> {
-                        messageField.appendText(emBtn.getText());
-                        emojiPopup.hide();
-                        messageField.requestFocus();
-                    });
-                    grid.add(emBtn, col, row);
-                    col++;
-                    if (col > 4) { col = 0; row++; }
-                }
-                colorIdx++;
-                Tab tab = new Tab(tabName, grid);
-                tab.setClosable(false);
-                tabPane.getTabs().add(tab);
-            }
-            StackPane popupContent = new StackPane(tabPane);
-            popupContent.setStyle("-fx-background-radius: 16; -fx-border-radius: 16; -fx-background-color: #fff; -fx-border-color: #e0e0e0; -fx-effect: dropshadow(gaussian, #888, 8, 0.2, 0, 2);");
-            emojiPopup.getContent().add(popupContent);
-            // Position popup below emoji button
-            javafx.geometry.Point2D point = emojiButton.localToScreen(0, emojiButton.getHeight());
-            emojiPopup.show(emojiButton, point.getX() - 40, point.getY() + 8);
-        });
-
         Button sendButton = new Button("Enviar");
-        sendButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;");
-        sendButton.setOnMouseEntered(e -> sendButton.setStyle("-fx-background-color: #1976D2; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;"));
-        sendButton.setOnMouseExited(e -> sendButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 15px; -fx-padding: 5 20 5 20;"));
 
         sendButton.setOnAction(e -> {
             String text = messageField.getText();
@@ -479,7 +385,7 @@ public class SimpleChatApp extends Application {
             }
         });
 
-        messageInput.getChildren().addAll(messageField, emojiButton, sendButton);
+        messageInput.getChildren().addAll(messageField, sendButton);
         HBox.setHgrow(messageField, Priority.ALWAYS);
 
         VBox chatPanel = new VBox(10);
@@ -507,9 +413,9 @@ public class SimpleChatApp extends Application {
             loadMessagesFromDatabase(currentUserId, currentChatUserId, userMessages, welcomeBox);
             // Start timeline to refresh messages every 3 seconds
             messageRefreshTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(3), ev -> {
-                    loadMessagesFromDatabase(currentUserId, currentChatUserId, userMessages, welcomeBox);
-                })
+                    new KeyFrame(Duration.seconds(3), ev -> {
+                        loadMessagesFromDatabase(currentUserId, currentChatUserId, userMessages, welcomeBox);
+                    })
             );
             messageRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
             messageRefreshTimeline.play();
