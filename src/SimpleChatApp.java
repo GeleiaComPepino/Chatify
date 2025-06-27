@@ -71,7 +71,6 @@ public class SimpleChatApp extends Application {
         Button loginButton = new Button("Entrar");
         Button registerButton = new Button("Criar Conta");
 
-        // Modern styling for login button
         loginButton.setStyle(
             "-fx-background-color: #2196F3;" +
             "-fx-text-fill: white;" +
@@ -107,7 +106,6 @@ public class SimpleChatApp extends Application {
             )
         );
 
-        // Modern styling for register button
         registerButton.setStyle(
             "-fx-background-color: transparent;" +
             "-fx-text-fill: #2196F3;" +
