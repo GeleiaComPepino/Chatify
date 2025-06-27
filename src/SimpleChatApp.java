@@ -28,7 +28,7 @@ public class SimpleChatApp extends Application {
     private final Map<String, VBox> userMessagesMap = new HashMap<>();
     private final Map<String, HBox> userWelcomeBoxMap = new HashMap<>();
     private String currentUserEmail;
-    private static final String DB_URL = "jdbc:mysql://0.tcp.sa.ngrok.io:17433/chatify?useSSL=false&serverTimezone=UTC";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/chatify?useSSL=false&serverTimezone=UTC";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "";
     private String currentUserId;
@@ -70,6 +70,87 @@ public class SimpleChatApp extends Application {
 
         Button loginButton = new Button("Entrar");
         Button registerButton = new Button("Criar Conta");
+
+        // Modern styling for login button
+        loginButton.setStyle(
+            "-fx-background-color: #2196F3;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-background-radius: 25;" +
+            "-fx-padding: 12 30;" +
+            "-fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);"
+        );
+        loginButton.setOnMouseEntered(e -> 
+            loginButton.setStyle(
+                "-fx-background-color: #1976D2;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 25;" +
+                "-fx-padding: 12 30;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0, 0, 3);"
+            )
+        );
+        loginButton.setOnMouseExited(e -> 
+            loginButton.setStyle(
+                "-fx-background-color: #2196F3;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 25;" +
+                "-fx-padding: 12 30;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);"
+            )
+        );
+
+        // Modern styling for register button
+        registerButton.setStyle(
+            "-fx-background-color: transparent;" +
+            "-fx-text-fill: #2196F3;" +
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-background-radius: 25;" +
+            "-fx-border-radius: 25;" +
+            "-fx-border-color: #2196F3;" +
+            "-fx-border-width: 2;" +
+            "-fx-padding: 10 28;" +
+            "-fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"
+        );
+        registerButton.setOnMouseEntered(e -> 
+            registerButton.setStyle(
+                "-fx-background-color: #2196F3;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 25;" +
+                "-fx-border-radius: 25;" +
+                "-fx-border-color: #2196F3;" +
+                "-fx-border-width: 2;" +
+                "-fx-padding: 10 28;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);"
+            )
+        );
+        registerButton.setOnMouseExited(e -> 
+            registerButton.setStyle(
+                "-fx-background-color: transparent;" +
+                "-fx-text-fill: #2196F3;" +
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 25;" +
+                "-fx-border-radius: 25;" +
+                "-fx-border-color: #2196F3;" +
+                "-fx-border-width: 2;" +
+                "-fx-padding: 10 28;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"
+            )
+        );
 
         Label statusLabel = new Label();
 
@@ -221,7 +302,40 @@ public class SimpleChatApp extends Application {
         mensagensLabel.setFont(new Font(16));
 
         Button addButton = new Button("Adicionar");
-        addButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;");
+        addButton.setStyle(
+            "-fx-background-color: #2196F3;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-background-radius: 20;" +
+            "-fx-padding: 8 16;" +
+            "-fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);"
+        );
+        addButton.setOnMouseEntered(e -> 
+            addButton.setStyle(
+                "-fx-background-color: #1976D2;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 12px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 20;" +
+                "-fx-padding: 8 16;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);"
+            )
+        );
+        addButton.setOnMouseExited(e -> 
+            addButton.setStyle(
+                "-fx-background-color: #2196F3;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 12px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 20;" +
+                "-fx-padding: 8 16;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);"
+            )
+        );
         addButton.setOnAction(e -> {
             TextInputDialog dialog = new TextInputDialog();
             dialog.setTitle("Adicionar Usuário");
@@ -356,33 +470,96 @@ public class SimpleChatApp extends Application {
         header.getChildren().addAll(img, nameLabel);
 
         HBox messageInput = new HBox(10);
-        messageInput.setPadding(new Insets(10));
+        messageInput.setPadding(new Insets(15));
         messageInput.setAlignment(Pos.CENTER);
+        messageInput.setStyle(
+            "-fx-background-color: #f8f9fa;" +
+            "-fx-background-radius: 25;" +
+            "-fx-border-radius: 25;" +
+            "-fx-border-color: #e9ecef;" +
+            "-fx-border-width: 1;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);"
+        );
+        
         TextField messageField = new TextField();
-        messageField.setPromptText("Digite a mensagem");
+        messageField.setPromptText("Digite a mensagem...");
+        messageField.setStyle(
+            "-fx-background-color: transparent;" +
+            "-fx-border-color: transparent;" +
+            "-fx-font-size: 14px;" +
+            "-fx-padding: 8 0;" +
+            "-fx-prompt-text-fill: #6c757d;"
+        );
+        messageField.setPrefHeight(40);
+        
+        // Add Enter key support for sending messages
+        messageField.setOnKeyPressed(e -> {
+            if (e.getCode().toString().equals("ENTER")) {
+                sendMessage(messageField, userMessages, name);
+            }
+        });
+        
+        // Add focus effects for modern appearance
+        messageField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                messageInput.setStyle(
+                    "-fx-background-color: #ffffff;" +
+                    "-fx-background-radius: 25;" +
+                    "-fx-border-radius: 25;" +
+                    "-fx-border-color: #2196F3;" +
+                    "-fx-border-width: 2;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(33,150,243,0.2), 5, 0, 0, 2);"
+                );
+            } else {
+                messageInput.setStyle(
+                    "-fx-background-color: #f8f9fa;" +
+                    "-fx-background-radius: 25;" +
+                    "-fx-border-radius: 25;" +
+                    "-fx-border-color: #e9ecef;" +
+                    "-fx-border-width: 1;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);"
+                );
+            }
+        });
+        
         Button sendButton = new Button("Enviar");
+        sendButton.setStyle(
+            "-fx-background-color: #4CAF50;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-size: 13px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-background-radius: 20;" +
+            "-fx-padding: 10 20;" +
+            "-fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);"
+        );
+        sendButton.setOnMouseEntered(e -> 
+            sendButton.setStyle(
+                "-fx-background-color: #388E3C;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 13px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 20;" +
+                "-fx-padding: 10 20;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);"
+            )
+        );
+        sendButton.setOnMouseExited(e -> 
+            sendButton.setStyle(
+                "-fx-background-color: #4CAF50;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 13px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 20;" +
+                "-fx-padding: 10 20;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);"
+            )
+        );
 
         sendButton.setOnAction(e -> {
-            String text = messageField.getText();
-            if (!text.isEmpty()) {
-                VBox messages = userMessages;
-                HBox welcomeBox = userWelcomeBoxMap.get(name);
-                if (messages.getChildren().contains(welcomeBox)) {
-                    messages.getChildren().remove(welcomeBox);
-                }
-
-                Label msg = new Label(text);
-                msg.setWrapText(true);
-                msg.setPadding(new Insets(10));
-                msg.setStyle("-fx-background-color: #e3e3ff; -fx-background-radius: 10;");
-                HBox message = new HBox(msg);
-                message.setAlignment(Pos.CENTER_RIGHT);
-                messages.getChildren().add(message);
-
-                saveMessageToDatabase(currentUserId, currentChatUserId, text);
-
-                messageField.clear();
-            }
+            sendMessage(messageField, userMessages, name);
         });
 
         messageInput.getChildren().addAll(messageField, sendButton);
@@ -540,6 +717,28 @@ public class SimpleChatApp extends Application {
             }
         };
         new Thread(task).start();
+    }
+
+    private void sendMessage(TextField messageField, VBox userMessages, String name) {
+        String text = messageField.getText().trim();
+        if (!text.isEmpty()) {
+            HBox welcomeBox = userWelcomeBoxMap.get(name);
+            if (userMessages.getChildren().contains(welcomeBox)) {
+                userMessages.getChildren().remove(welcomeBox);
+            }
+
+            Label msg = new Label(text);
+            msg.setWrapText(true);
+            msg.setPadding(new Insets(10));
+            msg.setStyle("-fx-background-color: #e3e3ff; -fx-background-radius: 10;");
+            HBox message = new HBox(msg);
+            message.setAlignment(Pos.CENTER_RIGHT);
+            userMessages.getChildren().add(message);
+
+            saveMessageToDatabase(currentUserId, currentChatUserId, text);
+
+            messageField.clear();
+        }
     }
 
     public static void main(String[] args) {
